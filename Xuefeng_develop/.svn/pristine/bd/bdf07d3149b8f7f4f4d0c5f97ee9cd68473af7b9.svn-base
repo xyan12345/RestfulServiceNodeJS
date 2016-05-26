@@ -1,0 +1,51 @@
+'use strict';
+
+const Hapi = require('hapi');
+const inert = require('inert');
+const config = require('./config');
+const postgres = require('./postgres');
+
+const server = new Hapi.Server();
+server.connection({ port: 3000 });
+server.register(inert, (err)=>{
+
+server.route({
+	method: "GET",
+	path: "/{param*}",
+	handler:  {
+		directory:{
+			path: config.clientPath
+		}
+
+	}
+})
+
+server.route({
+	method: "GET",
+	path: "/highways",
+	handler: postgres.getHighways
+})
+
+server.route({
+	method: "GET",
+	path: "/customers",
+	handler: postgres.getCustomers
+})
+
+server.route({
+	method: "GET",
+	path: "/customers/{id}",
+	handler: postgres.getCustomerById
+})
+
+server.route({
+	method: "PUT",
+	path: "/customers/{id}",
+	handler: postgres.putCustomerById
+})
+
+server.start(() => {
+    console.log('Server running at:', server.info.uri);
+});
+
+});

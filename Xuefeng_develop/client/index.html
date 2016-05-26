@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hapi.js POST Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="theme.css" rel="stylesheet">
+  </head>
+
+  <body role="document">
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Hapi.js POST Examples</a>
+        </div>
+      </div>
+    </nav>
+
+
+    <div class="container">
+	<a id="files"></a>
+	<h3>File Uploads</h3>
+	<form class="form-inline" action="/hello" type="multipart/form-data">
+	<input type="file" name="uploadFile" placeholder="file" />
+	<button class="btn btn-primary" onclick="sendJson()">Send JSON</button>
+	</form>
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+	<script type="text/javascript">
+	function alertForm(e, response) {
+		alert(response.responseText)
+	}
+	function sendFormFromHTML(form) {
+		var formData = new FormData(form);
+		formData.append('id', '123456'); // alternative to hidden fields
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', form.action, true);
+		xhr.onload = function(e) { alert(this.responseText) };
+		xhr.send(formData);
+		return false;
+	}
+	function sendFormOnTheFly() {
+		var formData = new FormData();
+		formData.append('name', 'paul');
+		formData.append('id', 123456);
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', '/hello', true);
+		xhr.onload = function(e) { alert(this.responseText) };
+		xhr.send(formData);
+	}
+	function sendJson() {
+		var formData = { "name": "paul from json", "id": 1234567 };
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', '/hello', true);
+		xhr.onload = function(e) { alert(this.responseText) };
+		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		xhr.send(JSON.stringify(formData));
+	}
+	function sendCanvasFromHTML(form) {
+		var canvas = document.getElementById('innerCanvas');
+		var dataURL = canvas.toDataURL();
+		var file = dataURLtoBlob(dataURL);
+		var formData = new FormData(form);
+		formData.append('id', '123456');
+		formData.append('uploadFile', file, 'canvas.png');
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', form.action, true);
+		xhr.onload = function(e) { alert(this.responseText) };
+		xhr.send(formData);
+		return false;
+	}
+	// Convert dataURL to Blob object
+	// See http://mitgux.com/send-canvas-to-server-as-file-using-ajax
+	function dataURLtoBlob(dataURL) {
+		// Decode the dataURL
+		var binary = atob(dataURL.split(',')[1]);
+		// Create 8-bit unsigned array
+		var array = [];
+		for(var i = 0; i < binary.length; i++) {
+			array.push(binary.charCodeAt(i));
+		}
+		// Return our Blob object
+		return new Blob([new Uint8Array(array)], {type: 'image/png'});
+	}
+	(function() {
+	// See http://jsfiddle.net/ArtBIT/kneDX/
+    // Creates a new canvas element and appends it as a child
+    // to the parent element, and returns the reference to
+    // the newly created canvas element
+	    function createCanvas(parent, width, height) {
+	        var canvas = {};
+	        canvas.node = document.createElement('canvas');
+	        canvas.node.id = "innerCanvas";
+	        canvas.context = canvas.node.getContext('2d');
+	        canvas.node.width = width || 100;
+	        canvas.node.height = height || 100;
+	        parent.appendChild(canvas.node);
+	        return canvas;
+	    }
+	    function init(container, width, height, fillColor) {
+	        var canvas = createCanvas(container, width, height);
+	        var ctx = canvas.context;
+	        // define a custom fillCircle method
+	        ctx.fillCircle = function(x, y, radius, fillColor) {
+	            this.fillStyle = fillColor;
+	            this.beginPath();
+	            this.moveTo(x, y);
+	            this.arc(x, y, radius, 0, Math.PI * 2, false);
+	            this.fill();
+	        };
+	        ctx.clearTo = function(fillColor) {
+	            ctx.fillStyle = fillColor;
+	            ctx.fillRect(0, 0, width, height);
+	        };
+	        ctx.clearTo(fillColor || "#e8e8e8");
+	        // bind mouse events
+	        canvas.node.onmousemove = function(e) {
+	            if (!canvas.isDrawing) {
+	               return;
+	            }
+	            var x = e.pageX - this.offsetLeft;
+	            var y = e.pageY - this.offsetTop;
+	            var radius = 2; // or whatever
+	            var fillColor = '#000';
+	            ctx.fillCircle(x, y, radius, fillColor);
+	        };
+	        canvas.node.onmousedown = function(e) {
+	            canvas.isDrawing = true;
+	        };
+	        canvas.node.onmouseup = function(e) {
+	            canvas.isDrawing = false;
+	        };
+	    }
+	    var container = document.getElementById('canvas');
+	    init(container, 150, 150, '#ddd');
+	})();
+    </script>
+
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,1 @@
+The documentation has moved: http://naturalatlas.github.io/node-gdal/classes/gdal.html

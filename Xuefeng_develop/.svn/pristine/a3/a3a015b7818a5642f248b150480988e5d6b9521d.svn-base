@@ -1,0 +1,82 @@
+const pg=require("pg");
+const config=require("./config");
+
+
+module.exports= {
+	getHighways: (request, reply) => {
+		reply([
+			{"routeid":1333, "Name": "I 15N"},
+			{"routeid":1384, "Name": "0089N"},
+			{"routeid":1330, "Name": "Tim Sweet Blvd"},			
+			]);
+
+	},
+
+	getCustomers: (request, reply) => {
+		pg.connect(config.url, (err, client, done) =>{
+			if(err) {
+				reply("connerr" + err);
+				done();
+			}else {
+				client.query(config.customers, (err, result)=>{
+					done();
+					if(err) {
+						reply("fds" + err);
+					}else {
+						reply(result.rows);
+					}
+				});
+			}
+
+		});
+
+	},
+
+	getCustomerById: (request, reply) => {
+		pg.connect(config.url, (err, client, done) =>{
+			if(err) {
+				reply("connerr" + err);
+				done();
+			}else {
+				client.query(config.customerById, [request.params.id], (err, result)=>{
+					done();
+					if(err) {
+						reply("fds" + err);
+					}else {
+						reply(result.rows[0]);
+					}
+				});
+			}
+
+		});
+
+	},
+
+	putCustomerById: (request, reply) => {
+		var client = new pg.Client(config.url);
+		client.connect((err) =>{
+			if(err) {
+				reply(err);
+				client.end();
+			}else {
+				var obj = JSON.parse(request.payload);
+						debugger;
+
+				client.query(config.updateCustomerById, [
+					obj.cus_id, 
+					obj.cus_name_short,
+					obj.cus_name_long 
+					], (err, result)=>{
+
+					if(err) {
+						reply(err);
+					}else {
+						reply("OK");
+					}
+					client.end();
+				});
+			}
+
+		});
+	}
+}
